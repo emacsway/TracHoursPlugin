@@ -30,13 +30,13 @@ setup(name='TracHours',
       install_requires=[
           'Trac',
           'python-dateutil',
-          'FeedParser',
-          'ComponentDependencyPlugin',
+          'FeedParser < 6',
+          'TracComponentDependency',
           'TicketSidebarProvider',
           'TracSQLHelper'
       ],
       dependency_links=[
-          'https://trac-hacks.org/svn/componentdependencyplugin/0.11#egg=ComponentDependencyPlugin',
+          'https://trac-hacks.org/svn/componentdependencyplugin/0.11#egg=TracComponentDependency',
           'https://trac-hacks.org/svn/ticketsidebarproviderplugin/0.11#egg=TicketSidebarProvider',
           'https://trac-hacks.org/svn/tracsqlhelperscript/1.2#egg=TracSQLHelper',
       ],
