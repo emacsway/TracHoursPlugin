@@ -89,14 +89,12 @@ class SetupTracHours(Component):
     def _do_user_man_update(self):
         when = to_utimestamp(datetime.now(utc))
         with self.env.db_transaction as db:
-            cursor = db.cursor()
-            cursor.execute("""
-                    INSERT INTO wiki
-                  (name,version,time,author,ipnr,text,comment,readonly)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            db("""
+                INSERT INTO wiki
+                 (name,version,time,author,text,comment,readonly)
+                VALUES (%s,%s,%s,%s,%s,%s,%s)
                 """, (user_manual_wiki_title, user_manual_version,
-                      when, 'TracHours Plugin', '127.0.0.1',
-                      user_manual_content, '', 0,))
+                      when, 'TracHours Plugin', user_manual_content, '', 0,))
 
     def version(self):
         for value, in self.env.db_query("""
