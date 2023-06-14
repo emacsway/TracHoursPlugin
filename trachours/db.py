@@ -16,7 +16,7 @@ from trac.env import IEnvironmentSetupParticipant
 from trac.util.datefmt import to_utimestamp, utc
 from tracsqlhelper import *
 
-from usermanual import *
+from .usermanual import *
 
 # totalhours be a computed field, but computed fields don't yet exist for trac
 custom_fields = {
@@ -79,7 +79,7 @@ class SetupTracHours(Component):
 
             for maxversion in cursor.fetchone():
                 maxversion = int(maxversion) \
-                    if isinstance(maxversion, (int, long)) \
+                    if isinstance(maxversion, int) \
                     else 0
                 break
             else:
@@ -131,7 +131,7 @@ class SetupTracHours(Component):
             field_type = field.pop('type', 'text')
             if not self.config.get(ticket_custom, field_type):
                 self.config.set(ticket_custom, name, field_type)
-            for key, value in field.items():
+            for key, value in list(field.items()):
                 self.config.set(ticket_custom, '%s.%s' % (name, key), value)
         self.config.save()
 

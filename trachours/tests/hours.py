@@ -65,7 +65,7 @@ class HoursTicketManipulatorTestCase(unittest.TestCase):
 
     def test_prepare_ticket_exists(self):
         req = ticket = fields = actions = {}
-        self.assertEquals(None,
+        self.assertEqual(None,
                           self.hours_thp.prepare_ticket(req, ticket, fields,
                                                         actions))
 
@@ -75,7 +75,7 @@ class HoursTicketManipulatorTestCase(unittest.TestCase):
         ticket['estimatedhours'] = '-1'
         self.assertTrue(ticket.get_value_or_default('estimatedhours'))
         msg = _("Please enter a positive value for Estimated Hours")
-        self.assertEquals(msg,
+        self.assertEqual(msg,
                           self.hours_thp.validate_ticket(req, ticket)[0][1])
 
     def test_validate_ticket_notanumber_returnstuple(self):
@@ -83,7 +83,7 @@ class HoursTicketManipulatorTestCase(unittest.TestCase):
         ticket = Ticket(self.env)
         ticket['estimatedhours'] = 'a'
         msg = _("Please enter a number for Estimated Hours")
-        self.assertEquals(msg,
+        self.assertEqual(msg,
                           self.hours_thp.validate_ticket(req, ticket)[0][1])
 
     def test_validate_ticket_empty_setstozero(self):
@@ -91,7 +91,7 @@ class HoursTicketManipulatorTestCase(unittest.TestCase):
         ticket = Ticket(self.env)
         ticket['estimatedhours'] = ''
         self.hours_thp.validate_ticket(req, ticket)
-        self.assertEquals('0', ticket['estimatedhours'])
+        self.assertEqual('0', ticket['estimatedhours'])
 
     def test_validate_ticket_fielddoesnotexist_returnstuple(self):
         req = {}
@@ -100,7 +100,7 @@ class HoursTicketManipulatorTestCase(unittest.TestCase):
         ticket = Ticket(self.env)
         msg = _(
             """The field is not defined. Please check your configuration.""")
-        self.assertEquals(msg,
+        self.assertEqual(msg,
                           self.hours_thp.validate_ticket(req, ticket)[0][1])
 
 

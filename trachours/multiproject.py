@@ -11,7 +11,7 @@ import calendar
 import datetime
 import feedparser
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from trac.core import Component, implements
 from trac.env import open_environment
@@ -28,7 +28,7 @@ try:
     def projects_from_url(url):
         """returns list of projects from the index url"""
         projects = []  # XXX should be a set?
-        html = urllib2.urlopen(url).read()
+        html = urllib.request.urlopen(url).read()
         html = lxml.html.fromstring(html)
         for link in html.iterlinks():
             projects.append(link[2].strip('/'))
@@ -78,7 +78,7 @@ def query_from_url(url, path='/hours?format=rss', directory=None):
 
     project_hours = {}
     projects = set()
-    for project, feed in feeds.items():
+    for project, feed in list(feeds.items()):
         if feed is not None:
             hours = total_hours(feed)
             for worker in hours:
@@ -128,8 +128,8 @@ class MultiprojectHours(Component):
 
         # XXX copy + pasted from hours.py
         data['months'] = [(i, calendar.month_name[i]) for i in range(1, 13)]
-        data['years'] = range(now.year, now.year - 10, -1)
-        data['days'] = range(1, 32)
+        data['years'] = list(range(now.year, now.year - 10, -1))
+        data['days'] = list(range(1, 32))
 
         # get the date range for the query
         if 'from_year' in req.args:
@@ -215,5 +215,5 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
     for url in args:
         rows = query_from_url(url)
-        print '%s:' % url
+        print('%s:' % url)
         pprint(rows)

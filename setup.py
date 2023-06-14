@@ -30,7 +30,7 @@ setup(name='TracHours',
       install_requires=[
           'Trac',
           'python-dateutil',
-          'FeedParser < 6',
+          'FeedParser',
           'TracComponentDependency',
           'TicketSidebarProvider',
           'TracSQLHelper'

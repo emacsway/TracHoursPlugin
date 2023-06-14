@@ -11,7 +11,7 @@ import calendar
 import csv
 import datetime
 import time
-from StringIO import StringIO
+from io import StringIO
 from pkg_resources import parse_version
 
 
@@ -29,11 +29,11 @@ from trac.web.chrome import (
 )
 
 from componentdependencies.interface import IRequireComponents
-from hours import TracHoursPlugin
+from .hours import TracHoursPlugin
 from ticketsidebarprovider.interface import ITicketSidebarProvider
 from ticketsidebarprovider.ticketsidebar import TicketSidebarProvider
 from tracsqlhelper import get_all_dict
-from utils import get_date, hours_format
+from .utils import get_date, hours_format
 
 
 class TracHoursRoadmapFilter(Component):
@@ -128,7 +128,7 @@ class TracHoursRoadmapFilter(Component):
                 else:
                     self.log.debug('see https://trac-hacks.org/ticket/13565 & 13161')
                     milestone = ''
-            if milestone not in self.hours.keys():
+            if milestone not in list(self.hours.keys()):
                 return iter([])
             hours = self.hours[milestone]
             estimated_hours = hours['estimatedhours']
@@ -233,9 +233,9 @@ class TracUserHours(Component):
     def date_data(self, req, data):
         """data for the date"""
         now = datetime.datetime.now()
-        data['days'] = range(1, 32)
+        data['days'] = list(range(1, 32))
         data['months'] = list(enumerate(calendar.month_name))
-        data['years'] = range(now.year, now.year - 10, -1)
+        data['years'] = list(range(now.year, now.year - 10, -1))
         if 'from_year' in req.args:
             from_date = get_date(req.args['from_year'],
                                  req.args.get('from_month'),
@@ -333,7 +333,7 @@ class TracUserHours(Component):
             worker_hours[ticket] += entry['seconds_worked']
 
         data['tickets'] = dict([(i, Ticket(self.env, i))
-                                for i in worker_hours.keys()])
+                                for i in list(worker_hours.keys())])
 
         # sort by ticket number and convert to hours
         worker_hours = [(ticket_id, seconds / 3600.)
@@ -352,7 +352,7 @@ class TracUserHours(Component):
             writer.writerow([])
             writer.writerow(['From', 'To'])
             writer.writerow([data[i].strftime(format)
-                             for i in 'from_date', 'to_date'])
+                             for i in ('from_date', 'to_date')])
             writer.writerow([])
             writer.writerow(['Ticket', 'Hours'])
             for ticket, hours in worker_hours:
@@ -372,7 +372,7 @@ class TracUserHours(Component):
         writer.writerow([])
         writer.writerow(['From', 'To'])
         writer.writerow([data[i].strftime('%B %d, %Y')
-                         for i in 'from_date', 'to_date'])
+                         for i in ('from_date', 'to_date')])
         if data['milestone']:
             writer.writerow(['Milestone', data['milestone']])
         writer.writerow([])

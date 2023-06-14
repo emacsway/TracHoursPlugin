@@ -12,7 +12,7 @@ from trac.perm import PermissionCache
 from trac.ticket.api import ITicketChangeListener, ITicketManipulator
 
 from componentdependencies.interface import IRequireComponents
-from hours import TracHoursPlugin
+from .hours import TracHoursPlugin
 
 import re
 
@@ -62,10 +62,10 @@ class TracHoursByComment(Component):
             """
             callback for re.sub; this will markup the hours link
             """
-            return u'[%s %s]' % (('/hours/%s' % ticket.id), match.group())
+            return '[%s %s]' % (('/hours/%s' % ticket.id), match.group())
 
         comment = re.sub(self.hours_regex, replace, comment)
-        comment = re.sub(self.singular_hour_regex, u' [/hours/%s 1 hour]'
+        comment = re.sub(self.singular_hour_regex, ' [/hours/%s 1 hour]'
                                                    % ticket.id, comment)
         return comment
 
@@ -85,7 +85,7 @@ class TracHoursByComment(Component):
         reply_to_ticket = ReplyToTicket(self.env)
         ticket = reply_to_ticket.ticket(message)
         payload = message.get_payload()
-        if isinstance(payload, basestring):
+        if isinstance(payload, str):
             if message.get('Content-Disposition', 'inline') == 'inline' \
                     and message.get_content_maintype() == 'text':
                 message.set_payload(self.munge_comment(payload, ticket))

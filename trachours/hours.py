@@ -12,7 +12,7 @@ import csv
 import dateutil.parser
 import re
 import time
-from StringIO import StringIO
+from io import StringIO
 from datetime import datetime, timedelta
 
 from genshi.filters import Transformer
@@ -33,17 +33,17 @@ from trac.web.chrome import (
 
 from componentdependencies.interface import IRequireComponents
 from tracsqlhelper import *
-from multiproject import MultiprojectHours
-from db import SetupTracHours
-from utils import get_all_users, get_date
+from .multiproject import MultiprojectHours
+from .db import SetupTracHours
+from .utils import get_all_users, get_date
 
 
 def query_to_query_string(query):
     """return a URL query string from a dictionary"""
     args = []
-    for k, v in query.items():
+    for k, v in list(query.items()):
         try:
-            if isinstance(v, basestring):
+            if isinstance(v, str):
                 args.append((k, v))
             else:
                 args.extend([(k, i) for i in v])
@@ -451,7 +451,7 @@ class TracHoursPlugin(Component):
             # if we have no username.
 
             for constraint_set in constraints:
-                for field, vals in constraint_set.items():
+                for field, vals in list(constraint_set.items()):
                     for val in vals:
                         if val.endswith('$USER'):
                             del constraint_set[field]
@@ -497,7 +497,7 @@ class TracHoursPlugin(Component):
         # For clients without JavaScript, we remove constraints here if
         # requested
         remove_constraints = {}
-        to_remove = [k[10:] for k in req.args.keys()
+        to_remove = [k[10:] for k in list(req.args.keys())
                      if k.startswith('rm_filter_')]
         if to_remove:  # either empty or containing a single element
             match = re.match(r'(\w+?)_(\d+)$', to_remove[0])
@@ -506,7 +506,7 @@ class TracHoursPlugin(Component):
             else:
                 remove_constraints[to_remove[0]] = -1
 
-        for field in [k for k in req.args.keys() if k in ticket_fields]:
+        for field in [k for k in list(req.args.keys()) if k in ticket_fields]:
             vals = req.args.getlist(field)
             if vals:
                 mode = req.args.get(field + '_mode')
@@ -528,7 +528,7 @@ class TracHoursPlugin(Component):
         base = query.get_href(*a, **kw)
         cols = args.get('col')
         if cols:
-            if isinstance(cols, basestring):
+            if isinstance(cols, str):
                 cols = [cols]
             base += '&' + "&".join("col=%s" % col
                                    for col in cols if col not in query.cols)
@@ -553,7 +553,7 @@ class TracHoursPlugin(Component):
         orig_time = datetime.now(utc)
         query_time = int(req.session.get('query_time', 0))
         query_time = datetime.fromtimestamp(query_time, utc)
-        query_constraints = unicode(query.constraints)
+        query_constraints = str(query.constraints)
         if query_constraints != req.session.get('query_constraints') \
                 or query_time < orig_time - timedelta(hours=1):
             tickets = query.execute(req)
@@ -642,8 +642,8 @@ class TracHoursPlugin(Component):
 
         data['prev_week'] = from_date - timedelta(days=7)
         data['months'] = list(enumerate(calendar.month_name))
-        data['years'] = range(now.year, now.year - 10, -1)
-        data['days'] = range(1, 32)
+        data['years'] = list(range(now.year, now.year - 10, -1))
+        data['days'] = list(range(1, 32))
         data['users'] = get_all_users(self.env)
         data['cur_worker_filter'] = req.args.get('worker_filter', '*any')
 
@@ -783,7 +783,7 @@ class TracHoursPlugin(Component):
         data['multiproject'] = self.env.is_component_enabled(
             MultiprojectHours)
 
-        from web_ui import TracUserHours
+        from .web_ui import TracUserHours
         data['user_hours'] = self.env.is_component_enabled(TracUserHours)
 
         # return the rss, if requested
@@ -862,7 +862,7 @@ class TracHoursPlugin(Component):
         now = datetime.now()
         months = [(i, calendar.month_name[i], i == now.month) for i in
                   range(1, 13)]
-        years = range(now.year, now.year - 10, -1)
+        years = list(range(now.year, now.year - 10, -1))
         days = [(i, i == now.day) for i in range(1, 32)]
 
         time_records = self.get_ticket_hours(ticket.id)
@@ -1001,19 +1001,19 @@ class TracHoursPlugin(Component):
         format_ = '%B %d, %Y'
         writer.writerow(['From', 'To'])
         writer.writerow([data[i].strftime(format_)
-                         for i in 'from_date', 'to_date'])
+                         for i in ('from_date', 'to_date')])
         writer.writerow([])
 
         for groupname, results in data['groups']:
             if groupname:
-                writer.writerow(unicode(groupname))
-            writer.writerow([unicode(header['label']).encode('utf-8')
+                writer.writerow(str(groupname))
+            writer.writerow([str(header['label']).encode('utf-8')
                              for header in data['headers']])
             for result in results:
                 row = []
                 for header in data['headers']:
                     value = result[header['name']]
-                    row.append(unicode(value).encode('utf-8'))
+                    row.append(str(value).encode('utf-8'))
                 writer.writerow(row)
             writer.writerow([])
 
@@ -1038,7 +1038,7 @@ class TracHoursPlugin(Component):
         if 'year' in req.args:  # assume month and day are provided
 
             started = datetime(
-                *map(int, [req.args[i] for i in 'year', 'month', 'day']))
+                *list(map(int, [req.args[i] for i in ('year', 'month', 'day')])))
             if started == datetime(now.year, now.month, now.day):
                 # assumes entries made for today should be ordered
                 # as they are entered
@@ -1086,7 +1086,7 @@ class TracHoursPlugin(Component):
 
         # set hours
         new_hours = {}
-        for field, newval in req.args.items():
+        for field, newval in list(req.args.items()):
             if field.startswith("hours_"):
                 id_ = int(field[len("hours_"):])
                 new_hours[id_] = \
@@ -1094,7 +1094,7 @@ class TracHoursPlugin(Component):
                      int(float(req.args['minutes_%s' % id_]) * 60))
 
         # remove checked hours
-        for field, newval in req.args.items():
+        for field, newval in list(req.args.items()):
             if field.startswith('rm_'):
                 id_ = int(field[len('rm_'):])
                 new_hours[id_] = 0

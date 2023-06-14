@@ -38,7 +38,7 @@ class TracHoursSetupTestCase(unittest.TestCase):
     def test_db_version(self):
         db_version = self.setup.db_version
         version = self.setup.version()
-        self.assertEquals(db_version, version)
+        self.assertEqual(db_version, version)
 
     def test_environtment_needs_upgraded(self):
         ret = self.setup.environment_needs_upgrade()
