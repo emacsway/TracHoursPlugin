@@ -181,7 +181,7 @@ class TracHoursSidebarProvider(Component):
         data = {'worker': req.authname,
                 'action': req.href('hours', ticket.id)}
         return Chrome(self.env). \
-            load_template('hours_sidebar.html').generate(**data)
+            load_template('hours_sidebar.html', None).generate(**data)
 
     # ITemplateProvider methods
 
